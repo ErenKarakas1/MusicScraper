@@ -1,3 +1,6 @@
+# SOON DEPRECATED FOR MAIN.PY
+
+
 import os
 import watchdog
 import csv
@@ -5,19 +8,21 @@ import time
 import undetected_chromedriver as uc
 from pyvirtualdisplay import Display
 from screeninfo import get_monitors
-from selenium.common.exceptions import NoSuchElementException, UnexpectedAlertPresentException, \
-    ElementClickInterceptedException
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    UnexpectedAlertPresentException,
+    ElementClickInterceptedException,
+)
 from selenium.webdriver.common.by import By
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
 
 class Handler(watchdog.events.PatternMatchingEventHandler):
     def __init__(self, observer):
         self.observer = observer
         # Set the patterns for PatternMatchingEventHandler
-        watchdog.events.PatternMatchingEventHandler.__init__(self, patterns=['*.flac'],
-                                                             ignore_directories=True, case_sensitive=False)
+        watchdog.events.PatternMatchingEventHandler.__init__(
+            self, patterns=["*.flac"], ignore_directories=True, case_sensitive=False
+        )
 
     def on_created(self, event):
         """
@@ -30,7 +35,7 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
         global fileReceived
         fileReceived = True
 
-        lastSongFile = open(cwd + "last_song.txt", 'w')
+        lastSongFile = open(cwd + "last_song.txt", "w")
         words = event.src_path.split("/")
         lastSongFile.write(words[4][0:-5])
         lastSongFile.close()
@@ -55,16 +60,22 @@ def createBrowserInstance():
     prefFile = lines[0]
     chromiumLocation = lines[1]
 
-    options.add_argument('--no-first-run')
-    options.add_argument('--no-service-autorun')
-    options.add_argument('--password-store=basic')
+    options.add_argument("--no-first-run")
+    options.add_argument("--no-service-autorun")
+    options.add_argument("--password-store=basic")
     options.add_argument("user-data-dir:" + os.path.normpath(prefFile))
     options.add_argument("--start-maximized")
     options.binary_location = os.path.normpath(chromiumLocation)
 
-    browser = uc.Chrome(options=options,
-                        driver_executable_path=os.path.normpath((os.getcwd() + '/webdriver/chromedriver')),
-                        browser_executable_path=os.path.normpath(chromiumLocation, ))
+    browser = uc.Chrome(
+        options=options,
+        driver_executable_path=os.path.normpath(
+            (os.getcwd() + "/webdriver/chromedriver")
+        ),
+        browser_executable_path=os.path.normpath(
+            chromiumLocation,
+        ),
+    )
 
     browser.implicitly_wait(10)
 
@@ -91,48 +102,62 @@ def downloadParamSong(songName, artistName, browser):
     fileReceived = False
     fileFailed = False
 
-    browser.get('https://free-mp3-download.net/')
+    browser.get("https://free-mp3-download.net/")
 
     musicSearchbar = browser.find_element(By.XPATH, '//*[@id="q"]')
     time.sleep(1)
 
     browser.save_screenshot("photo.png")
-    vpnButton = browser.find_element(By.XPATH, '/html/body/main/div/div[1]/form/div[3]/label')
+    vpnButton = browser.find_element(
+        By.XPATH, "/html/body/main/div/div[1]/form/div[3]/label"
+    )
     vpnButton.click()
 
     time.sleep(1)
-    musicSearchbar.send_keys(songName.split(' - ')[0])
+    musicSearchbar.send_keys(songName.split(" - ")[0])
     musicSearchbar.submit()
 
     time.sleep(3)
-    download = browser.find_element(By.XPATH, '/html/body/main/div/div[2]/div/table/tbody/tr[1]/td[3]/a/button')
+    download = browser.find_element(
+        By.XPATH, "/html/body/main/div/div[2]/div/table/tbody/tr[1]/td[3]/a/button"
+    )
     download.click()
 
     time.sleep(1)
     browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
     time.sleep(1)
-    flacButton = browser.find_element(By.XPATH, '/html/body/main/div/div/div/div/div[3]/div[1]/div[2]/p/label')
+    flacButton = browser.find_element(
+        By.XPATH, "/html/body/main/div/div/div/div/div[3]/div[1]/div[2]/p/label"
+    )
     flacButton.click()
 
     try:
         time.sleep(3)
-        frame = browser.find_element(By.XPATH, '/html/body/main/div/div/div/div/div[3]/div[2]/div/div/div/iframe')
+        frame = browser.find_element(
+            By.XPATH, "/html/body/main/div/div/div/div/div[3]/div[2]/div/div/div/iframe"
+        )
         browser.switch_to.frame(frame)
 
         time.sleep(2)
-        captchaBox = browser.find_element(By.XPATH, '/html/body/div[2]/div[3]/div[1]/div/div/span/div[1]')
+        captchaBox = browser.find_element(
+            By.XPATH, "/html/body/div[2]/div[3]/div[1]/div/div/span/div[1]"
+        )
         captchaBox.click()
 
         browser.switch_to.default_content()
         time.sleep(2)
 
         try:
-            captchaFrame = browser.find_element(By.XPATH, '/html/body/div[3]/div[4]/iframe')
+            captchaFrame = browser.find_element(
+                By.XPATH, "/html/body/div[3]/div[4]/iframe"
+            )
             browser.switch_to.frame(captchaFrame)
 
             time.sleep(1)
-            browser.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[1]/div[1]/div[4]').click()
+            browser.find_element(
+                By.XPATH, "/html/body/div/div/div[3]/div[2]/div[1]/div[1]/div[4]"
+            ).click()
 
             browser.switch_to.default_content()
             time.sleep(10)
@@ -146,7 +171,9 @@ def downloadParamSong(songName, artistName, browser):
     errorNum = 0
     for p in range(2):
         try:
-            downloadButton = browser.find_element(By.XPATH, "/html/body/main/div/div/div/div/div[3]/button")
+            downloadButton = browser.find_element(
+                By.XPATH, "/html/body/main/div/div/div/div/div[3]/button"
+            )
             downloadButton.click()
 
         except NoSuchElementException:
@@ -178,8 +205,8 @@ def downloadParamSong(songName, artistName, browser):
 def downloadError(artistName, songName):
     print("Download failed - Saving the song name...")
 
-    failedSongFile = open(cwd + "failedSongs.csv", 'a')
-    filewriter = csv.writer(failedSongFile, dialect='excel')
+    failedSongFile = open(cwd + "failedSongs.csv", "a")
+    filewriter = csv.writer(failedSongFile, dialect="excel")
     filewriter.writerow([songName, artistName])
     failedSongFile.close()
 
@@ -209,15 +236,15 @@ def downloadThePlaylist(browser):
     nameReader = csv.DictReader(exportedPlaylist)
 
     for row in nameReader:
-        name = row['Track Name'].split(' - ')[0]
+        name = row["Track Name"].split(" - ")[0]
         if lastSongPassed or songName == "":
-            downloadParamSong(name, row['Artist Name(s)'], browser)
+            downloadParamSong(name, row["Artist Name(s)"], browser)
 
-        elif group[0] != row['Artist Name(s)'] and song[0].upper() in name.upper():
+        elif group[0] != row["Artist Name(s)"] and song[0].upper() in name.upper():
             lastSongPassed = True
             print("Artist name mismatch in the song " + name)
 
-        elif group[0] == row['Artist Name(s)'] and song[0].upper() in name.upper():
+        elif group[0] == row["Artist Name(s)"] and song[0].upper() in name.upper():
             lastSongPassed = True
 
     exportedPlaylist.close()
@@ -229,14 +256,14 @@ if __name__ == "__main__":
     fileFailed = False
 
     path = os.getcwd()
-    cwd = os.path.dirname(path) + '/Logs/'
+    cwd = os.path.dirname(path) + "/Logs/"
 
     paths = []
-    pathsFile = open(cwd + 'paths.txt', 'r')
+    pathsFile = open(cwd + "paths.txt", "r")
     lines = pathsFile.readlines()
 
     for i in range(4):
-        lines[i] = lines[i].rstrip('\n')
+        lines[i] = lines[i].rstrip("\n")
 
     pathsFile.close()
 

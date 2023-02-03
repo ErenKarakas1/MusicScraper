@@ -1,4 +1,5 @@
 #!/bin/bash
+
 for file in /home/eren/Downloads/*.flac; do
     opusenc --bitrate 256 "$file" "${file%.flac}.opus"
 done
@@ -10,3 +11,5 @@ done
 for file in /home/eren/Downloads/*.opus; do
     mv "$file" "/home/eren/Music"
 done
+
+# TODO autofind username instead of eren
