@@ -10,7 +10,7 @@ xorg-server-xvfb / opus-tools (for flac2opus)
 
 ​
 
-Running setup.py will download all necessary packages and Chrome webdriver.
+Running setup.py will download all necessary packages and setup necessary files.
 ​
 
-Then, you can run musicScraper.py.
+Then, you can run main.py.

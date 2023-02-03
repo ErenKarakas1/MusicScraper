@@ -7,7 +7,7 @@ class Browser:
         self.extensions = self.get_extensions()
 
     def get_extensions(self) -> list:
-        path_to_adblock = "/home/eren/Downloads/uBlock0.chromium"  # TODO
+        path_to_adblock = "/home/eren/Downloads/uBlock0.chromium"  # TODO better extension management
         path_to_buster = (
             "/home/eren/Downloads/buster_captcha_solver_for_humans-1.3.2-chrome"
         )
