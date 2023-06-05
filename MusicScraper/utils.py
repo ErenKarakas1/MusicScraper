@@ -15,9 +15,6 @@ def stealth(page: Page):
 
 def get_locations():
     with open("../Logs/paths.txt", "r") as file:
-        lines = file.readlines()
-
-    for line in lines:
-        line = line.rstrip("\n")
+        lines = file.read().splitlines()
 
     return lines

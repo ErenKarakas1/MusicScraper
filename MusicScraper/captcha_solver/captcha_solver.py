@@ -4,6 +4,8 @@ import os
 import pydub
 from speech_recognition import Recognizer, AudioFile
 from playwright.sync_api import Page
+from typing import Literal
+from pathlib import Path
 
 
 class CaptchaSolver:
@@ -12,20 +14,25 @@ class CaptchaSolver:
         self.main_frame = None
         self.recaptcha = None
 
-    def presetup(self) -> bool:
-        name = self.page.get_by_title("reCAPTCHA", exact=True).get_attribute("name")
+
+    status = Literal["FAILED", "COMPLETED", "SOLVED"]
+
+    def presetup(self) -> status:
+        locator = self.page.get_by_title("reCAPTCHA", exact=True)
+        locator.scroll_into_view_if_needed()
+        name = locator.get_attribute("name")
         self.recaptcha = self.page.frame(name=name)
 
         if self.recaptcha is None:
             print("Could not find recaptcha frame")
-            return False
+            return "FAILED"
 
         self.recaptcha.click("//div[@class='recaptcha-checkbox-border']")
         delay(self.page)
 
         s = self.recaptcha.locator("//span[@id='recaptcha-anchor']")
         if s.get_attribute("aria-checked") != "false":  # solved already
-            return False
+            return "SOLVED"
 
         name = self.page.get_by_title(
             "recaptcha challenge expires in two minutes", exact=True
@@ -34,24 +41,29 @@ class CaptchaSolver:
 
         if self.main_frame is None:
             print("Could not find main_frame")
-            return False
+            return "FAILED"
 
-        return True
+        return "COMPLETED"
+
 
     def start(self):
-        success = self.presetup()
+        status_type = self.presetup()
         tries = 0
 
-        if not success:
-            print("presetup() returned " + str(success))
-            return
+        if status_type == "FAILED":
+            print("presetup() failed.")
+            return False
+        elif status_type == "SOLVED":
+            print("Captcha solved in presetup().")
+            return True
 
+        #TODO improve the logic
         while tries <= 5:
             delay(self.page)
             try:
                 self.solve_captcha()
             except Exception as e:
-                print(e)
+                print("Could not solve captcha. " + e)
                 self.main_frame.locator("id=recaptcha-reload-button").click()
             else:
                 s = self.recaptcha.locator("id=recaptcha-anchor")
@@ -62,6 +74,9 @@ class CaptchaSolver:
 
             tries += 1
 
+        return tries <= 5
+
+
     def solve_captcha(self):
         self.main_frame.get_by_title("Get an audio challenge").click()
         delay(self.page)
@@ -71,8 +86,7 @@ class CaptchaSolver:
         ).get_attribute("href")
 
         if href is None:
-            print("Could not find download link")
-            return
+            raise ValueError("Could not find download link.")
 
         with urllib.request.urlopen(href) as response, open(
             "audio.mp3", "wb"
@@ -93,16 +107,16 @@ class CaptchaSolver:
 
         text = recognizer.recognize_google(audio)
 
-        if type(text) is not str:
-            print(text)
-            print("Transcription is not string.")
-            return
+        print(text) #TODO debug print
 
-        print(text)
+        if type(text) is not str:
+            raise TypeError("Transcription is not a string.")
+
         delay(self.page)
 
         self.main_frame.fill("id=audio-response", text)
         self.main_frame.click("id=recaptcha-verify-button")
+
 
     def __del__(self):
         files = ["audio.mp3", "audio.wav"]

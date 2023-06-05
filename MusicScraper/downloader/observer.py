@@ -1,6 +1,7 @@
 import watchdog.events
 import watchdog.observers
 import os
+from pathlib import Path
 
 
 class Observer:
@@ -22,6 +23,7 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
             self, patterns=["*.flac"], ignore_directories=True, case_sensitive=False
         )
 
+
     def on_created(self, event):
         """
         Notifies the program about download starting.
@@ -30,12 +32,17 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
         """
         print("Download started - % s." % event.src_path)
 
-        with open("last_song.txt", "w") as file:
+        current_dir = Path()
+        relative_path = "../Logs/last_song.txt"
+        last_song = (current_dir / relative_path).resolve()
+
+        with open(last_song, "w") as file:
             words = event.src_path.split("/")
             file.write(words[4][0:-5])
 
         self.observer.stop()
         # Event is created, you can process it now
+
 
     def on_modified(self, event):
         print("Download finished - % s." % event.src_path)
