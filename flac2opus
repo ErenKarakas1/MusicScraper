@@ -1,15 +1,13 @@
 #!/bin/bash
 
-for file in /home/eren/Downloads/*.flac; do
-    opusenc --bitrate 256 "$file" "${file%.flac}.opus"
+_user="$(id -u -n)"
+
+# Converts FLAC to 256-bit OPUS
+for file in /home/"$_user"/Downloads/*.flac; do
+    [ -f "$file" ] && opusenc --bitrate 256 "$file" "${file%.flac}.opus" && rm "$file"
 done
 
-for file in /home/eren/Downloads/*.flac; do
-    rm "$file"
+# Moves the newly created OPUS files
+for file in /home/"$_user"/Downloads/*.opus; do
+    [ -f "$file" ] && mv "$file" "/home/$_user/Music"
 done
-
-for file in /home/eren/Downloads/*.opus; do
-    mv "$file" "/home/eren/Music"
-done
-
-# TODO autofind username instead of eren
