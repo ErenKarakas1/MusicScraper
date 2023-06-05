@@ -1,5 +1,6 @@
 *.wav
 *.mp3
+*.bak
 __pycache__
 .idea
 .pytest_cache

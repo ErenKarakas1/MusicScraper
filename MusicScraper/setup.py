@@ -101,7 +101,7 @@ def main():
         print("A Chromium based browser isn't installed")
         print(
             "Error - Setup installation failed.\n"
-            + "Reason - Please install a Chromium based browser to complete setup process."
+            + "Please install a Chromium based browser to complete the setup process."
         )
         exit()
 
@@ -145,7 +145,7 @@ def main():
         pathsFile.write(playlistLocation + "\n")
 
     except FileExistsError:
-        print("\nSkipping creating Logs folder as necessary files already exist.")
+        print("\nSkipped creating the Logs folder as necessary files already exist.")
 
 
 if __name__ == "__main__":
