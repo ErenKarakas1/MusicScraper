@@ -1,19 +1,17 @@
-from utils import delay
 import urllib.request
 import os
 import pydub
+from typing import Literal
 from speech_recognition import Recognizer, AudioFile
 from playwright.sync_api import Page
-from typing import Literal
-from pathlib import Path
+from downloader.BaseUtils import BaseUtils
 
 
-class CaptchaSolver:
+class CaptchaSolver(BaseUtils):
     def __init__(self, page: Page):
         self.page = page
         self.main_frame = None
         self.recaptcha = None
-
 
     status = Literal["FAILED", "COMPLETED", "SOLVED"]
 
@@ -28,7 +26,7 @@ class CaptchaSolver:
             return "FAILED"
 
         self.recaptcha.click("//div[@class='recaptcha-checkbox-border']")
-        delay(self.page)
+        super().delay(self.page)
 
         s = self.recaptcha.locator("//span[@id='recaptcha-anchor']")
         if s.get_attribute("aria-checked") != "false":  # solved already
@@ -45,7 +43,6 @@ class CaptchaSolver:
 
         return "COMPLETED"
 
-
     def start(self):
         status_type = self.presetup()
         tries = 0
@@ -57,9 +54,9 @@ class CaptchaSolver:
             print("Captcha solved in presetup().")
             return True
 
-        #TODO improve the logic
+        # TODO improve the logic
         while tries <= 5:
-            delay(self.page)
+            super().delay(self.page)
             try:
                 self.solve_captcha()
             except Exception as e:
@@ -69,17 +66,16 @@ class CaptchaSolver:
                 s = self.recaptcha.locator("id=recaptcha-anchor")
                 if s.get_attribute("aria-checked") != "false":
                     self.page.locator("id=recaptcha-demo-submit").click()
-                    delay(self.page)
+                    super().delay(self.page)
                     break
 
             tries += 1
 
         return tries <= 5
 
-
     def solve_captcha(self):
         self.main_frame.get_by_title("Get an audio challenge").click()
-        delay(self.page)
+        super().delay(self.page)
 
         href = self.main_frame.get_by_title(
             "Alternatively, download audio as MP3"
@@ -107,16 +103,15 @@ class CaptchaSolver:
 
         text = recognizer.recognize_google(audio)
 
-        print(text) #TODO debug print
+        print(text)  # TODO debug print
 
-        if type(text) is not str:
+        if not isinstance(text, str):
             raise TypeError("Transcription is not a string.")
 
-        delay(self.page)
+        super().delay(self.page)
 
         self.main_frame.fill("id=audio-response", text)
         self.main_frame.click("id=recaptcha-verify-button")
-
 
     def __del__(self):
         files = ["audio.mp3", "audio.wav"]

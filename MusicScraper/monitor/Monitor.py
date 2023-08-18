@@ -1,28 +1,27 @@
-import watchdog.events
-import watchdog.observers
 import os
+from watchdog.observers import Observer
+from watchdog.events import PatternMatchingEventHandler
 from pathlib import Path
 
 
-class Observer:
+class PatternObserver:
     def get_observer(self, folder_path):
         src_path = os.path.normpath(folder_path)
-        observer = watchdog.observers.Observer()
 
+        observer = Observer()
         event_handler = Handler(observer)
 
         observer.schedule(event_handler, path=src_path, recursive=True)
         return observer
 
 
-class Handler(watchdog.events.PatternMatchingEventHandler):
+class Handler(PatternMatchingEventHandler):
     def __init__(self, observer):
         self.observer = observer
         # Set the patterns for PatternMatchingEventHandler
-        watchdog.events.PatternMatchingEventHandler.__init__(
+        PatternMatchingEventHandler.__init__(
             self, patterns=["*.flac"], ignore_directories=True, case_sensitive=False
         )
-
 
     def on_created(self, event):
         """
@@ -42,7 +41,6 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
 
         self.observer.stop()
         # Event is created, you can process it now
-
 
     def on_modified(self, event):
         print("Download finished - % s." % event.src_path)

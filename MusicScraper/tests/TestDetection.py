@@ -1,12 +1,12 @@
-from playwright.sync_api import sync_playwright
-from utils import stealth, get_locations
-from browser.browser import Browser
 import time
+from playwright.sync_api import sync_playwright
+from browser.Browser import Browser
+from downloader.BaseUtils import BaseUtils
 
 
-class TestDetectionSites:
+class TestDetection(BaseUtils):
     def init_context(self):
-        locations = get_locations()
+        locations = super().get_locations()
 
         profile_dir = locations[0]
         exec_path = locations[1]
@@ -18,6 +18,7 @@ class TestDetectionSites:
         context = self.browser.get_browser_instance(self.playwright, type, exec_path)
         return context
 
+    # TODO take screenshots?
     def test_sannysoft(self):
         context = self.init_context()
         page = context.new_page()
@@ -32,7 +33,7 @@ class TestDetectionSites:
         context = self.init_context()
         page = context.new_page()
 
-        stealth(page)
+        super().stealth(page)
 
         page.goto("https://bot.sannysoft.com/")
         time.sleep(15)

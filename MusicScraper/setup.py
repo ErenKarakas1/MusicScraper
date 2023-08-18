@@ -35,14 +35,16 @@ def get_chrome_version():
                     proc.stdout.read().decode("utf-8").replace("Chromium", "").strip()
                 )
                 version = version.replace("Google Chrome", "").strip()
-        except:
+        except Exception as err:
+            print(err)
             try:
                 with subprocess.Popen(
                     ["chromium", "--version"], stdout=subprocess.PIPE
                 ) as proc:
                     version = proc.stdout.read().decode("utf-8").split(" ")[1]
                     return version
-            except:
+            except Exception as err:
+                print(err)
                 return None
 
     # elif platform == "mac":

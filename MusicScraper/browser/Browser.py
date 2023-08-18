@@ -6,7 +6,6 @@ class Browser:
         self.profile_dir = profile_dir
         self.extensions = self.get_extensions()
 
-
     def get_extensions(self) -> list:
         path_to_adblock = (
             "/home/eren/Downloads/uBlock0.chromium"  # TODO better extension management
@@ -18,7 +17,6 @@ class Browser:
         extensions = [path_to_adblock, path_to_buster]
 
         return extensions
-
 
     def get_browser_instance(
         self, playwright: Playwright, type: str, exec_path: str

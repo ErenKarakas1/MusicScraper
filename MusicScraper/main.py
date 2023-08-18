@@ -1,11 +1,11 @@
 from playwright.sync_api import sync_playwright
-from downloader.downloader import Downloader
-from utils import get_locations
+from downloader.Downloader import Downloader
+from downloader.BaseUtils import BaseUtils
 
 
 if __name__ == "__main__":
     with sync_playwright() as playwright:
-        locations = get_locations()
+        locations = BaseUtils().get_locations()
 
         profile_dir = locations[0]
         exec_path = locations[1]
